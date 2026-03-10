@@ -1,77 +1,20 @@
-const mysql = require('mysql2');
-
-
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'Bus_booking'
+const { Sequelize } = require('sequelize');
+const sequelize = new Sequelize ('bus_booking', 'root', 'root', {
+    host: 'localhost',
+    dialect: 'mysql'
 });
 
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to the database:', err);
-    return;
-  }
+(async () => {
+    try {
+        await sequelize.authenticate();
+        console.log('Connection to the database established successfully.');
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+    }
+})();
 
-  console.log('Connected to the database');
 
-  // Users table
-  const usersTable = `
-    CREATE TABLE IF NOT EXISTS Users (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      name VARCHAR(255),
-      email VARCHAR(255)
-    )
-  `;
+module.exports = sequelize;
 
-  // Buses table
-  const busesTable = `
-    CREATE TABLE IF NOT EXISTS Buses (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      busNumber VARCHAR(50),
-      totalSeats INT,
-      availableSeats INT
-    )
-  `;
 
-  // Bookings table
-  const bookingsTable = `
-    CREATE TABLE IF NOT EXISTS Bookings (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      seatNumber INT
-    )
-  `;
 
-  // Payments table
-  const paymentsTable = `
-    CREATE TABLE IF NOT EXISTS Payments (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      amountPaid DECIMAL(10,2),
-      paymentStatus VARCHAR(50)
-    )
-  `;
-
-  // Execute queries
-  connection.execute(usersTable, (err) => {
-    if (err) console.error('Error creating Users table:', err);
-    else console.log('Users table created');
-  });
-
-  connection.execute(busesTable, (err) => {
-    if (err) console.error('Error creating Buses table:', err);
-    else console.log('Buses table created');
-  });
-
-  connection.execute(bookingsTable, (err) => {
-    if (err) console.error('Error creating Bookings table:', err);
-    else console.log('Bookings table created');
-  });
-
-  connection.execute(paymentsTable, (err) => {
-    if (err) console.error('Error creating Payments table:', err);
-    else console.log('Payments table created');
-  });
-});
-
-module.exports = connection;

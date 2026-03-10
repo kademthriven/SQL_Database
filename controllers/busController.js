@@ -1,47 +1,53 @@
-const db = require('../utils/db-connections');
+const Bus = require('../models/busModel');
 
 
 // Add Bus
-const addBus = (req,res)=>{
-    const {busNumber,totalSeats,availableSeats} = req.body;
+const addBus = async (req,res)=>{
+    try{
 
-    const insertQuery = 'INSERT INTO Buses (busNumber,totalSeats,availableSeats) VALUES (?,?,?)';
+        const {busNumber,totalSeats,availableSeats} = req.body;
 
-    db.execute(insertQuery,[busNumber,totalSeats,availableSeats],(err)=>{
-        if(err){
-            console.log(err.message);
-            res.status(500).send(err.message);
-            db.end();
-            return;
-        }
+        const bus = await Bus.create({
+            busNumber,
+            totalSeats,
+            availableSeats
+        });
 
         console.log("Bus inserted");
 
-        res.status(200).send(`Bus ${busNumber} added successfully`);
-    })
-}
+        res.status(201).send(`Bus ${bus.busNumber} added successfully`);
+
+    }catch(err){
+        console.log(err.message);
+        res.status(500).send(err.message);
+    }
+};
 
 
 // Get buses with available seats
-const getAvailableBuses = (req,res)=>{
-    const {seats} = req.params;
+const getAvailableBuses = async (req,res)=>{
+    try{
 
-    const selectQuery = 'SELECT * FROM Buses WHERE availableSeats > ?';
+        const {seats} = req.params;
 
-    db.execute(selectQuery,[seats],(err,result)=>{
-        if(err){
-            console.log(err.message);
-            res.status(500).send(err.message);
-            db.end();
-            return;
-        }
+        const buses = await Bus.findAll({
+            where:{
+                availableSeats:{
+                    [require('sequelize').Op.gt]: seats
+                }
+            }
+        });
 
-        res.status(200).send(result);
-    })
-}
+        res.status(200).send(buses);
+
+    }catch(err){
+        console.log(err.message);
+        res.status(500).send(err.message);
+    }
+};
 
 
 module.exports = {
     addBus,
     getAvailableBuses
-}
+};
