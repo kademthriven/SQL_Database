@@ -16,5 +16,3 @@ const sequelize = new Sequelize ('bus_booking', 'root', 'root', {
 
 module.exports = sequelize;
 
-
-
